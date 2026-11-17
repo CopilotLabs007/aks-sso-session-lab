@@ -48,6 +48,18 @@ dotnet run --project backend\SsoSession.Api --launch-profile nginx
 
 Nginx serves the production build and proxies `/api/` to the API. The `nginx` launch profile points the API's IdP redirects at port 8080. See [nginx/conf/nginx.conf](nginx/conf/nginx.conf) and [docs/architecture.md](docs/architecture.md).
 
+### Option C: Docker Compose (Nginx and API containers)
+
+Requires Docker Desktop with Linux containers. Nginx builds and serves the Angular production app; the API is reachable only from the Compose network. Only Nginx is published to the host, at `http://localhost:8080`.
+
+```powershell
+$env:DEMO_IDP_USERNAME = "<your-test-user>"
+$env:DEMO_IDP_PASSWORD = "<your-test-password>"
+docker compose up --build
+```
+
+The API uses an ephemeral development signing key, so sessions are invalidated when its container restarts. Stop both containers with `Ctrl+C`, or run `docker compose down` in another terminal. Do not use this development configuration outside the lab.
+
 ## Build and test
 
 ```powershell
