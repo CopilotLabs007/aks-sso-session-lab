@@ -60,6 +60,50 @@ docker compose up --build
 
 The API uses an ephemeral development signing key, so sessions are invalidated when its container restarts. Stop both containers with `Ctrl+C`, or run `docker compose down` in another terminal. Do not use this development configuration outside the lab.
 
+### Option D: Local Kubernetes with kind (AKS stand-in)
+
+Runs Nginx and the API as separate pods behind ClusterIP Services, so Nginx reaches the API through Kubernetes DNS (`api` → `api.sso-lab.svc.cluster.local`). It mirrors the Phase 3 AKS layout without Azure or ACR. Requires Docker Desktop, [kind](https://kind.sigs.k8s.io/), and `kubectl` (`winget install Kubernetes.kind Kubernetes.kubectl`). Manifests are in [k8s/](k8s/).
+
+```powershell
+kind create cluster --name sso-lab
+
+docker build -f backend/SsoSession.Api/Dockerfile -t sso-api:local .
+docker build -f nginx/Dockerfile -t sso-nginx:local .
+kind load docker-image sso-api:local sso-nginx:local --name sso-lab
+
+kubectl apply -f k8s/namespace.yaml
+```
+
+Create the demo credentials Secret from a temporary file outside the repository, so the password stays out of shell history and source control:
+
+```powershell
+$envFile = Join-Path $env:TEMP 'demo-idp.env'
+Set-Content $envFile "DemoIdp__Username=<your-test-user>`nDemoIdp__Password=<your-test-password>"
+kubectl -n sso-lab create secret generic api-demo-idp --from-env-file=$envFile
+Remove-Item $envFile
+```
+
+Deploy and open `http://localhost:8080`:
+
+```powershell
+kubectl apply -f k8s/
+kubectl -n sso-lab rollout status deploy/api
+kubectl -n sso-lab rollout status deploy/nginx
+kubectl -n sso-lab port-forward svc/nginx 8080:80
+```
+
+To change the credentials, recreate the file, run the same `create secret` command with `--dry-run=client -o yaml | kubectl apply -f -`, delete the file, then `kubectl -n sso-lab rollout restart deploy/api` (environment variables are read only at pod start).
+
+Explore Services and DNS:
+
+```powershell
+kubectl -n sso-lab get svc,endpointslices,pods -o wide
+kubectl -n sso-lab run dns-test --rm -it --restart=Never --image=busybox:1.36 -- sh -c "nslookup api; nslookup api.sso-lab.svc.cluster.local; cat /etc/resolv.conf"
+kubectl -n sso-lab exec deploy/nginx -- wget -qO- http://api:8080/api/health
+```
+
+Keep the API at one replica: pending sign-in state and the development signing key live in pod memory. After rebuilding an image, run `kind load docker-image` again and `kubectl -n sso-lab rollout restart deploy/<name>`. Remove everything with `kind delete cluster --name sso-lab`.
+
 ## Build and test
 
 ```powershell

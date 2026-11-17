@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: sso-lab
+  labels:
+    app: api
+spec:
+  # Must stay at 1: auth state and the dev signing key live in pod memory.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api
+          image: sso-api:local
+          # Image is side-loaded with `kind load docker-image`; never pull from a registry.
+          imagePullPolicy: Never
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: Frontend__BaseUrl
+              value: http://localhost:8080
+          envFrom:
+            - secretRef:
+                name: api-demo-idp
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            runAsNonRoot: true
+            # Built-in non-root `app` user of the .NET images; the image itself defaults to root.
+            runAsUser: 1654
+            allowPrivilegeEscalation: false

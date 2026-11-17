@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  # Name must stay `api`: nginx.docker.conf proxies to http://api:8080.
+  name: api
+  namespace: sso-lab
+spec:
+  type: ClusterIP
+  selector:
+    app: api
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
