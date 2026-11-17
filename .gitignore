@@ -1,0 +1,23 @@
+# .NET build output
+bin/
+obj/
+TestResults/
+*.user
+.vs/
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+coverage/
+
+# Local nginx runtime files
+nginx/logs/
+nginx/temp/
+
+# Local AI chat transcripts and tooling state
+.specstory/
+
+# OS / editor
+.DS_Store
+Thumbs.db

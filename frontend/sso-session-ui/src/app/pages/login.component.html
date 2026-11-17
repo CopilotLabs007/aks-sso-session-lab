@@ -1,0 +1,52 @@
+<div class="page-shell login-page">
+  <header class="topbar">
+    <a class="brand" routerLink="/" aria-label="SSO Session Management Lab home">
+      <span class="brand-mark" aria-hidden="true">S</span>
+      <span>SSO <strong>SESSION LAB</strong></span>
+    </a>
+    <span class="environment-tag">LOCAL DEVELOPMENT / PHASE 01</span>
+  </header>
+
+  <main class="login-layout">
+    <section class="welcome-panel">
+      <p class="eyebrow"><span class="status-dot"></span> AUTHENTICATION WORKBENCH</p>
+      <h1>One sign-in.<br /><em>One session.</em></h1>
+      <p class="welcome-copy">
+        Follow a simulated identity handoff all the way to a browser-managed,
+        HttpOnly application session.
+      </p>
+      <div class="flow-steps" aria-label="Authentication flow overview">
+        <div><span>01</span><strong>IDENTITY</strong></div>
+        <span class="flow-rule" aria-hidden="true"></span>
+        <div><span>02</span><strong>EXCHANGE</strong></div>
+        <span class="flow-rule" aria-hidden="true"></span>
+        <div><span>03</span><strong>SESSION</strong></div>
+      </div>
+      <p class="simulator-note">SIMULATION ONLY <span>Not an OAuth 2.0 / OIDC provider</span></p>
+    </section>
+
+    <section class="login-panel" aria-labelledby="login-title">
+      <div class="panel-kicker">LOCAL ACCESS <span>01 / 03</span></div>
+      <h2 id="login-title">Start a session</h2>
+      <p class="panel-copy">Continue to the simulated identity provider to sign in.</p>
+      <button class="button button-primary" type="button" (click)="beginLogin()" [disabled]="startingLogin()">
+        <span>{{ startingLogin() ? 'Starting sign-in...' : 'Continue to sign in' }}</span><span class="button-arrow" aria-hidden="true">&#8599;</span>
+      </button>
+      @if (loginError()) {
+        <p class="form-error login-error" role="alert">{{ loginError() }}</p>
+      }
+      <div class="api-health" aria-live="polite">
+        <span class="health-indicator" [class]="'health-indicator health-' + apiStatus()"></span>
+        <span>API</span>
+        <strong>{{ apiStatus() === 'checking' ? 'Checking connection' : apiStatus() === 'online' ? 'Online' : 'Unavailable' }}</strong>
+        <code>GET /api/health</code>
+      </div>
+      <p class="privacy-note">The application never reads or stores your JWT in JavaScript.</p>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <span>SSO SESSION MANAGEMENT LAB</span>
+    <span>DEVELOPMENT ENVIRONMENT</span>
+  </footer>
+</div>

@@ -1,0 +1,11 @@
+<div class="countdown-panel" [class.countdown-expired]="expired()">
+  <div class="countdown-heading">
+    <p class="eyebrow">TIME REMAINING</p>
+    <span class="session-state"><span class="status-dot"></span>{{ expired() ? 'EXPIRED' : 'ACTIVE' }}</span>
+  </div>
+  <strong class="countdown-value" aria-live="polite">{{ formattedRemaining() }}</strong>
+  <div class="countdown-track" aria-hidden="true">
+    <span [style.width.%]="progressPercent()"></span>
+  </div>
+  <p class="countdown-footnote">JWT and cookie expire at<br /><strong>{{ session().expiresAt | date:'mediumTime' }}</strong></p>
+</div>

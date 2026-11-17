@@ -1,0 +1,54 @@
+<div class="page-shell dashboard-page">
+  <header class="topbar">
+    <a class="brand" routerLink="/" aria-label="SSO Session Management Lab">
+      <span class="brand-mark" aria-hidden="true">S</span>
+      <span>SSO <strong>SESSION LAB</strong></span>
+    </a>
+    <div class="dashboard-topline"><span class="status-dot"></span> APPLICATION SESSION</div>
+    <button class="button button-quiet" type="button" (click)="logout()">Sign out</button>
+  </header>
+
+  <main class="dashboard-main">
+    @if (loading()) {
+      <p class="loading-state" aria-live="polite">Validating the session cookie…</p>
+    } @else if (sessionStore.session(); as session) {
+      <section class="dashboard-intro">
+        <div>
+          <p class="eyebrow">SESSION / ACTIVE</p>
+          <h1>Welcome, <em>{{ session.username }}</em></h1>
+        </div>
+        <div class="session-id"><span>SESSION ID</span><code>{{ session.sessionId }}</code></div>
+      </section>
+
+      <section class="session-overview" aria-label="Current session status">
+        <app-session-status [session]="session" />
+        <div class="session-actions">
+          <p class="eyebrow">SESSION CONTROL</p>
+          <h2>Keep this session active</h2>
+          <p>Refresh replaces the cookie with a newly signed JWT, bounded by the configured maximum session age.</p>
+          <button class="button button-dark" type="button" (click)="refresh()" [disabled]="refreshing()">
+            <span>{{ refreshing() ? 'Renewing…' : 'Refresh session' }}</span>
+            <span class="button-arrow" aria-hidden="true">&#8635;</span>
+          </button>
+          @if (message()) {
+            <p class="success-message" role="status">{{ message() }}</p>
+          }
+        </div>
+      </section>
+
+      <section class="session-facts" aria-label="Session timestamps">
+        <div><span>CREATED</span><strong>{{ session.createdAt | date:'medium' }}</strong></div>
+        <div><span>JWT EXPIRATION</span><strong>{{ session.expiresAt | date:'medium' }}</strong></div>
+        <div><span>COOKIE</span><strong>HttpOnly / JavaScript inaccessible</strong></div>
+      </section>
+      <p class="refresh-limit-note">This demo refreshes a short-lived access JWT. Production systems typically use a separately managed refresh-token lifecycle with revocation and abuse controls.</p>
+    } @else {
+      <p class="loading-state" role="alert">No active session. Returning to sign in…</p>
+    }
+  </main>
+
+  <footer class="page-footer">
+    <span>JWT STORED BY THE BROWSER COOKIE JAR</span>
+    <span>NOT IN LOCALSTORAGE / SESSIONSTORAGE</span>
+  </footer>
+</div>

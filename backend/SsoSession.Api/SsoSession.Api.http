@@ -1,0 +1,30 @@
+@SsoSession.Api_HostAddress = http://localhost:5208
+
+### Health should return 200 without authentication
+GET {{SsoSession.Api_HostAddress}}/api/health
+Accept: application/json
+
+### Login start should redirect to the configured frontend with a new state
+GET {{SsoSession.Api_HostAddress}}/api/auth/sso-login
+Accept: text/html
+
+### Session without an authentication cookie should return 401
+GET {{SsoSession.Api_HostAddress}}/api/auth/session
+Accept: application/json
+
+### Refresh without an authentication cookie should return 401
+POST {{SsoSession.Api_HostAddress}}/api/auth/refresh-session
+Accept: application/json
+
+### An invalid authorization transaction should return 400
+POST {{SsoSession.Api_HostAddress}}/api/auth/create-session
+Content-Type: application/json
+
+{
+	"code": "invalid-code",
+	"state": "invalid-state"
+}
+
+### Logout should return 204 and clear the cookie when present
+POST {{SsoSession.Api_HostAddress}}/api/auth/logout
+Accept: application/json

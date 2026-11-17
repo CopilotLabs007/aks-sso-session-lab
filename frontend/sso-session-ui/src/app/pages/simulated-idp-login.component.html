@@ -1,0 +1,46 @@
+<div class="page-shell idp-page">
+  <header class="topbar">
+    <a class="brand" routerLink="/" aria-label="Return to SSO Session Lab">
+      <span class="brand-mark brand-mark-coral" aria-hidden="true">I</span>
+      <span>SIMULATED <strong>IDENTITY PROVIDER</strong></span>
+    </a>
+    <span class="environment-tag">LOCAL TEST ONLY</span>
+  </header>
+
+  <main class="idp-layout">
+    <section class="idp-context">
+      <p class="eyebrow">IDENTITY BOUNDARY / 01</p>
+      <h1>Verify your<br /><em>demo identity.</em></h1>
+      <p>This simulated provider checks the local demo account, then returns a short-lived authorization code to the application.</p>
+      <div class="state-readout">
+        <span>TRANSACTION STATE</span>
+        <code>{{ state() || 'MISSING' }}</code>
+      </div>
+    </section>
+
+    <section class="form-panel" aria-labelledby="idp-title">
+      <p class="panel-kicker">TEST CREDENTIALS <span>NO PRODUCTION ACCOUNT</span></p>
+      <h2 id="idp-title">Simulated IdP sign-in</h2>
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <label for="username">Username</label>
+        <input id="username" type="text" formControlName="username" autocomplete="username" placeholder="Demo username" required />
+        <label for="password">Password</label>
+        <input id="password" type="password" formControlName="password" autocomplete="current-password" placeholder="Demo password" required />
+        <p class="form-hint">Use the demo account configured for this local environment.</p>
+        @if (errorMessage()) {
+          <p class="form-error" role="alert">{{ errorMessage() }}</p>
+        }
+        <button class="button button-dark" type="submit" [disabled]="submitting() || !state()">
+          <span>{{ submitting() ? 'Verifying...' : 'Verify identity' }}</span>
+          <span class="button-arrow" aria-hidden="true">&#8599;</span>
+        </button>
+      </form>
+      <p class="privacy-note">Credentials are sent only to the local API and are never logged by the UI.</p>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <span>SSO SESSION MANAGEMENT LAB</span>
+    <a routerLink="/">CANCEL SIGN-IN</a>
+  </footer>
+</div>
